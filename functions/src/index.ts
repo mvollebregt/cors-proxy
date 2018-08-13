@@ -26,12 +26,13 @@ export const proxy = functions.https.onRequest((request, response) =>
 
 function forward(
   originalRequest: express.Request, eventualResponse: express.Response, url: string, cookieJar = new SingleUseCookieJar()): void {
+  if (url.startsWith('/')) url = url.substring(1);
   request(baseUrl + url, rewriteRequest(originalRequest, cookieJar), (error, response, body) => {
     eventualResponse.append('set-cookie', rewriteCookies(response));
 
-    // TODO: specifieker maken!
-    eventualResponse.header('Access-Control-Allow-Origin', '*');
-    eventualResponse.header("Access-Control-Allow-Credentials', 'true");
+    // TODO: juiste origin invullen (ook voor WKWebView)
+    eventualResponse.header('Access-Control-Allow-Origin', 'http://localhost:8080');
+    eventualResponse.header('Access-Control-Allow-Credentials', 'true');
     eventualResponse.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
     eventualResponse.header('Access-Control-Max-Age', '1000');
     eventualResponse.header('Access-Control-Allow-Headers', 'Origin, Content-Type, X-Auth-Token , Authorization');
